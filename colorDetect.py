@@ -1,5 +1,5 @@
-import numpy as np
 import cv2
+import numpy as np
 from sklearn.cluster import KMeans
 from collections import Counter
 import matplotlib.pyplot as plt
@@ -17,6 +17,22 @@ def show_palette(palette):
     plt.imshow(cv2.cvtColor(palette, cv2.COLOR_BGR2RGB))
     plt.title("Most Common Color")
     plt.show()
+
+# Calculate the percentage of red pixels in the image
+def calculate_red_percentage(image):
+    # Define the red color range in BGR
+    lower_red = np.array([0, 0, 100])
+    upper_red = np.array([50, 50, 255])
+
+    # Create a mask for red pixels
+    mask = cv2.inRange(image, lower_red, upper_red)
+
+    # Calculate the percentage of red pixels
+    red_pixels = cv2.countNonZero(mask)
+    total_pixels = image.shape[0] * image.shape[1]
+    red_percentage = (red_pixels / total_pixels) * 100
+
+    return red_percentage
 
 def main():
     image_path = input("Enter the path to the image file: ")
@@ -43,6 +59,10 @@ def main():
 
     # Display the color
     show_palette(palette)
+
+    # Calculate and display the percentage of red pixels
+    red_percentage = calculate_red_percentage(img_resized)
+    print(f"Percentage of red pixels: {red_percentage:.2f}%")
 
 if __name__ == "__main__":
     main()
