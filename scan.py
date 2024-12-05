@@ -5,10 +5,10 @@ import zipfile
 import paramiko
 
 # Constants
-DESTINATION_IP = '192.168.1.100'
+DESTINATION_IP = '10.243.254.139'
 DESTINATION_PORT = 22
-USERNAME = 'your_username'
-PASSWORD = 'your_password'
+USERNAME = 'csc2'
+PASSWORD = 'wildcat'
 REMOTE_PATH = '/path/to/destination/snapshots.zip'
 IMAGE_NAMES = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
 SNAPSHOT_DIR = 'temp-snapshots'
