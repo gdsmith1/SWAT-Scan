@@ -1,22 +1,8 @@
 import cv2
 import numpy as np
-from sklearn.cluster import KMeans
-from collections import Counter
-import matplotlib.pyplot as plt
-
-# Finds the most common color
-def palette_most_common(k_cluster):
-    most_common_cluster = Counter(k_cluster.labels_).most_common(1)[0][0]
-    most_common_color = k_cluster.cluster_centers_[most_common_cluster]
-    return np.full((50, 300, 3), most_common_color, dtype=np.uint8)
-
-# Show the most common color (using matplotlib)
-def show_palette(palette):
-    plt.figure(figsize=(8, 2))
-    plt.axis("off")
-    plt.imshow(cv2.cvtColor(palette, cv2.COLOR_BGR2RGB))
-    plt.title("Most Common Color")
-    plt.show()
+import os
+import zipfile
+import shutil
 
 # Calculate the percentage of red pixels in the image
 def calculate_red_percentage(image):
@@ -35,34 +21,44 @@ def calculate_red_percentage(image):
     return red_percentage
 
 def main():
-    image_path = input("Enter the path to the image file: ")
+    # Get the zip file path from the user
+    zip_file_path = input("Enter the path to the zip file: ")
+    extract_to_dir = "extracted_images"
 
-    # Load image
-    img = cv2.imread(image_path)
-    if img is None:
-        print("Error: Image not found. Please check the path.")
-        return
+    # Unzip the folder
+    with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+        zip_ref.extractall(extract_to_dir)
 
-    # Resize for speedup
-    img_resized = cv2.resize(img, (img.shape[1] // 2, img.shape[0] // 2))
+    try:
+        # Find the name of the unzipped folder
+        unzipped_folder = os.path.join(extract_to_dir, os.listdir(extract_to_dir)[0])
 
-    # Convert image to a 2D array of pixels
-    pixels = img_resized.reshape(-1, 3)
+        # Loop through all files in the unzipped folder
+        red_percentages = []
+        image_names = []
+        for file_name in os.listdir(unzipped_folder):
+            image_path = os.path.join(unzipped_folder, file_name)
+            img = cv2.imread(image_path)
+            if img is None:
+                print(f"Skipping non-image file or invalid image: {file_name}")
+                continue
 
-    # Apply KMeans clustering (using 5 clusters)
-    n_clusters = 5
-    clt = KMeans(n_clusters=n_clusters, random_state=0)
-    clt.fit(pixels)
+            # Calculate the percentage of red pixels
+            red_percentage = calculate_red_percentage(img)
+            red_percentages.append(red_percentage)
+            image_names.append(file_name)
 
-    # Find the most common color
-    palette = palette_most_common(clt)
-
-    # Display the color
-    show_palette(palette)
-
-    # Calculate and display the percentage of red pixels
-    red_percentage = calculate_red_percentage(img_resized)
-    print(f"Percentage of red pixels: {red_percentage:.2f}%")
+        # Find the image with the most red
+        if red_percentages:
+            max_red_index = np.argmax(red_percentages)
+            print(f"Image with the most red: {image_names[max_red_index]}")
+            print(f"Percentage of red: {red_percentages[max_red_index]:.2f}%")
+        else:
+            print("No images were found or processed.")
+    finally:
+        # Cleanup: delete the extracted images folder
+            if os.path.exists(extract_to_dir):
+                shutil.rmtree(extract_to_dir)
 
 if __name__ == "__main__":
     main()
