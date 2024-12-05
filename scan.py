@@ -11,7 +11,7 @@ USERNAME = 'csc2'
 PASSWORD = 'wildcat'
 REMOTE_PATH = '/path/to/destination/snapshots.zip'
 IMAGE_NAMES = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
-SNAPSHOT_DIR = 'temp-snapshots'
+SNAPSHOT_DIR = '~/temp-snapshots'
 ZIP_FILENAME = 'snapshots.zip'
 
 # Create directory if it doesn't exist
@@ -38,7 +38,7 @@ while True:
             index += 1
 
         # Exit after 16 seconds
-        if time.time() - start_time >= 16:
+        if time.time() - start_time >= 4: #16:
             print("Finished capturing images.")
             webcam.release()
             cv2.destroyAllWindows()
@@ -62,12 +62,24 @@ while True:
         break
 
 # Package images into a zip file
+print("Packaging images into a zip file...")
 with zipfile.ZipFile(ZIP_FILENAME, 'w') as zipf:
     for image_name in IMAGE_NAMES:
-        zipf.write(f'{SNAPSHOT_DIR}/{image_name}.jpg')
+        image_path = f'{SNAPSHOT_DIR}/{image_name}.jpg'
+        if os.path.exists(image_path):
+            zipf.write(image_path)
+        else:
+            print(f"Warning: {image_path} does not exist and will not be included in the zip file.")
+
+# Verify the zip file was created
+if not os.path.exists(ZIP_FILENAME):
+    print(f"Error: {ZIP_FILENAME} was not created.")
+else:
+    print(f"{ZIP_FILENAME} created successfully.")
 
 # Send the zip file to another machine using SFTP
 try:
+    print("Sending the zip file to the destination machine...")
     transport = paramiko.Transport((DESTINATION_IP, DESTINATION_PORT))
     transport.connect(username=USERNAME, password=PASSWORD)
     sftp = paramiko.SFTPClient.from_transport(transport)
