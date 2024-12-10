@@ -1,17 +1,17 @@
-import cv2
+# import cv2
 import os
 import time
 import zipfile
 import paramiko
 
 # Constants
-DESTINATION_IP = '10.243.254.139'
+DESTINATION_IP = '192.168.169.178'
 DESTINATION_PORT = 22
-USERNAME = 'csc2'
+USERNAME = 'robot7'
 PASSWORD = 'wildcat'
-REMOTE_PATH = '/path/to/destination/snapshots.zip'
+REMOTE_PATH = '/home/robot7/snapshots.zip'
 IMAGE_NAMES = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
-SNAPSHOT_DIR = '~/temp-snapshots'
+SNAPSHOT_DIR = os.path.expanduser('~/admin/SWAT-Scan/temp-snapshots')
 ZIP_FILENAME = 'snapshots.zip'
 
 # Create directory if it doesn't exist
@@ -38,7 +38,7 @@ while True:
             index += 1
 
         # Exit after 16 seconds
-        if time.time() - start_time >= 4: #16:
+        if time.time() - start_time >= 16:
             print("Finished capturing images.")
             webcam.release()
             cv2.destroyAllWindows()
@@ -64,12 +64,12 @@ while True:
 # Package images into a zip file
 print("Packaging images into a zip file...")
 with zipfile.ZipFile(ZIP_FILENAME, 'w') as zipf:
-    for image_name in IMAGE_NAMES:
-        image_path = f'{SNAPSHOT_DIR}/{image_name}.jpg'
-        if os.path.exists(image_path):
-            zipf.write(image_path)
-        else:
-            print(f"Warning: {image_path} does not exist and will not be included in the zip file.")
+    for root, dirs, files in os.walk(SNAPSHOT_DIR):
+        print(f"Found files: {files} in {root}")
+        for file in files:
+            file_path = os.path.join(root, file)
+            zipf.write(file_path, os.path.relpath(file_path, SNAPSHOT_DIR))
+            print(f"Added {file_path} to zip file.")
 
 # Verify the zip file was created
 if not os.path.exists(ZIP_FILENAME):
