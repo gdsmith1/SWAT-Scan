@@ -128,10 +128,16 @@ def main():
         else:
             print("No blue found.")
 
-    finally:
-        # Cleanup: delete the extracted images folder
-        if os.path.exists(extract_to_dir):
-            shutil.rmtree(extract_to_dir)
+    # Draw rectangles around the faces
+    for (x, y, w, h) in faces:
+        cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
+
+    # Display the image with faces highlighted
+    cv2.imshow('Face Detection', image)
+
+    # Wait for a key press and close the window
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     main()
