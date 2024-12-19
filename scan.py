@@ -5,6 +5,7 @@ import paramiko
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
+import time
 
 # Constants
 DESTINATION_IP = '192.168.169.178'
@@ -42,6 +43,7 @@ class TurtleBot3Controller(Node):
 
         time.sleep(rotation_duration)
 
+
         self.vel_msg.angular.z = 0.0
         self.publisher.publish(self.vel_msg)
         self.get_logger().info("Stopping rotation")
@@ -53,6 +55,7 @@ def main(args=None):
     try:
         for index in range(8):
             turtlebot3_controller.rotate_45_degrees()
+
             try:
                 check, frame = webcam.read()
                 print(check)  # prints true as long as the webcam is running
@@ -63,14 +66,6 @@ def main(args=None):
                 filename = f'{SNAPSHOT_DIR}/{IMAGE_NAMES[index]}.jpg'
                 cv2.imwrite(filename, frame)
                 print(f"Image {IMAGE_NAMES[index]} saved!")
-
-                if key == ord('q'):
-                    print("Turning off camera.")
-                    webcam.release()
-                    print("Camera off.")
-                    print("Program ended.")
-                    cv2.destroyAllWindows()
-                    exit()
 
             except KeyboardInterrupt:
                 print("Turning off camera.")
