@@ -12,7 +12,7 @@ DESTINATION_IP = '192.168.169.178'
 DESTINATION_PORT = 22
 USERNAME = 'robot7'
 PASSWORD = 'wildcat'
-REMOTE_PATH = '/home/robot7/snapshots.zip'
+REMOTE_PATH = '/home/robot7/SWAT-Scan/snapshots.zip'
 IMAGE_NAMES = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
 SNAPSHOT_DIR = os.path.expanduser('~/admin/SWAT-Scan/temp-snapshots')
 ZIP_FILENAME = 'snapshots.zip'
@@ -80,14 +80,13 @@ def main(args=None):
         print("Finished capturing images.")
         webcam.release()
 
-        # Package images into a zip file
-        print("Packaging images into a zip file...")
+        # Package the entire temp-snapshots directory into a zip file
+        print("Packaging the temp-snapshots directory into a zip file...")
         with zipfile.ZipFile(ZIP_FILENAME, 'w') as zipf:
             for root, dirs, files in os.walk(SNAPSHOT_DIR):
-                print(f"Found files: {files} in {root}")
                 for file in files:
                     file_path = os.path.join(root, file)
-                    zipf.write(file_path, os.path.relpath(file_path, SNAPSHOT_DIR))
+                    zipf.write(file_path, os.path.relpath(root, SNAPSHOT_DIR))
                     print(f"Added {file_path} to zip file.")
 
         # Verify the zip file was created
