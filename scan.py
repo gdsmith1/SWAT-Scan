@@ -80,13 +80,14 @@ def main(args=None):
         print("Finished capturing images.")
         webcam.release()
 
-        # Package the entire temp-snapshots directory into a zip file
-        print("Packaging the temp-snapshots directory into a zip file...")
+        # Package images into a zip file
+        print("Packaging images into a zip file...")
         with zipfile.ZipFile(ZIP_FILENAME, 'w') as zipf:
             for root, dirs, files in os.walk(SNAPSHOT_DIR):
+                print(f"Found files: {files} in {root}")
                 for file in files:
                     file_path = os.path.join(root, file)
-                    zipf.write(file_path, os.path.relpath(root, SNAPSHOT_DIR))
+                    zipf.write(file_path, os.path.relpath(file_path, SNAPSHOT_DIR))
                     print(f"Added {file_path} to zip file.")
 
         # Verify the zip file was created
