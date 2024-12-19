@@ -47,14 +47,20 @@ class TurtleBot3Controller(Node):
         self.publisher.publish(self.vel_msg)
         self.get_logger().info("Stopping rotation")
 
+    def full_rotation(self):
+        for _ in range(1):
+            self.rotate_45_degrees()
+            time.sleep(4)
+
 def main(args=None):
     rclpy.init(args=args)
     turtlebot3_controller = TurtleBot3Controller()
 
+
     try:
         for index in range(8):
-            turtlebot3_controller.rotate_45_degrees()
-            time.sleep(4) 
+            turtlebot3_controller.full_rotation()
+            # time.sleep(4) 
 
             try:
                 check, frame = webcam.read()
